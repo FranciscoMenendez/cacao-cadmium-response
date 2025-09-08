@@ -1,96 +1,147 @@
 # Molecular and Physiological Mechanisms of the Cadmium Response in Seedlings of Two *Theobroma cacao* L. Genotypes
 
-**Repository purpose.**  
-Data, code, and supplementary materials supporting the manuscript:
-
-> Delgadillo-Duran, P., Menéndez-Burns, F. M., Rodríguez-Medina, C., Montenegro, A. C., Istvan, A., Guiltinan, M. J., Yockteng, R., Maximova, S. N. (2025) *Molecular and Physiological Mechanisms of the Cadmium Response in Seedlings of Two Theobroma cacao L. Genotypes*. _Plant Physiology_. (DOI TBA)
-
-This repository reproduces the transcriptomic (RNA-seq) and physiological (gas exchange, ABA) analyses and figures.
+> **Repository for data, code, and reproducible analyses accompanying the manuscript:**  
+> *Molecular and Physiological Mechanisms of the Cadmium Response in Seedlings of Two Theobroma cacao L. Genotypes*
 
 ---
 
-## Directory layout
+## Authors (manuscript order)
 
-data/
-rna_seq/
-raw/ links/README pointing to PRJNA943175
-processed/ # count matrices, sample metadata
-gas_exchange/
-licor_raw/ # original LI-6400XT Excel exports (4 sessions)
-licor_qc/ # row-removal logs (what was excluded + why)
-licor_clean/ # cleaned, analysis-ready CSVs
-design/ # experimental design & measurement settings
-hormones/
-aba_raw/ # LC-MS outputs (core facility)
-aba_processed/ # tidy tables for stats/plots
-annotations/
-kofam/ planttribes2/ go/ kegg/
-code/
-00_utils/ # helpers (paths, plotting, IO)
-01_qc_licor/ # LICOR cleaning pipeline (R)
-02_deg_edger/ # DEG contrasts (edgeR/limma)
-03_go_enrichment/ # GO enrichment + semantic similarity clustering
-04_kegg_pt_mapping/ # KOFAM + PlantTribes2 mapping
-05_fig2_upset/ # intersections & regulation proportions
-06_fig4_hormones/ # indoles, apocarotenoids, ethylene panels
-07_fig5_roots/ # catabolism, ion transport, metal transporters
-08_fig6_leaf_metab/ # TCA/CHO/FA/terpenoids panels
-09_fig7_phys_aba/ # Gs/A + ABA stats and plots
-10_fig8_model/ # inputs/exports used by schematic
-90_tables/ # writes Supplementary Tables S1–S9
-figures/
-main/ # submission PDFs/SVGs for Figs 1–8
-supp/ # Figures S1–S2
-supplement/
-tables_xlsx/ # single Excel workbook with sheets S1–S9
-methods_snippets/ # short method blocks referenced by tables
-licenses/
-LICENSE-code # recommended: MIT (code)
-LICENSE-data # recommended: CC BY 4.0 (datasets)
+- **P. Delgadillo‑Duran**\*¹  
+- **F. M. Menéndez‑Burns**\*² ³  
+- **C. Rodríguez‑Medina**⁴  
+- **A. C. Montenegro**¹  
+- **A. Istvan**⁵  
+- **M. J. Guiltinan**² ³  
+- **R. Yockteng**¹ ⁷ ✉️  
+- **S. N. Maximova**² ³ ✉️  
+
+\*Equal contribution
+
+### Affiliations
+1. Corporación Colombiana de Investigación Agropecuaria – **AGROSAVIA**, Centro de Investigación Tibaitatá, Mosquera, Colombia  
+2. Department of Plant Science, The Pennsylvania State University, University Park, PA, USA  
+3. Huck Institutes of the Life Sciences, The Pennsylvania State University, University Park, PA, USA  
+4. Corporación Colombiana de Investigación Agropecuaria – **AGROSAVIA**, Centro de Investigación Palmira, Valle del Cauca, Colombia  
+5. Department of Biochemistry and Molecular Biology, The Pennsylvania State University, University Park, PA, USA  
+6. Department of Statistics, The Pennsylvania State University, University Park, PA, USA  
+7. Institut de Systématique, Evolution, Biodiversité (UMR CNRS 7205), Muséum National d’Histoire Naturelle, France
+
+**Corresponding authors:**  
+Siela N. Maximova — <snm104@psu.edu>  
+Roxana Yockteng — <ryockteng@agrosavia.co>
+
+---
+
+## Overview
+
+This repository contains the cleaned data, analysis code, and figure-generation scripts used to quantify genotypic differences in cadmium (Cd) uptake and to characterize the physiological and transcriptomic responses of cacao seedlings to Cd exposure. We analyze roots and leaves across time points and genotypes, integrate DEG calls with GO/KEGG and pathway-centric gene family heatmaps, and test physiological hypotheses with gas exchange and ABA measurements.
+
+**Highlights**
+- Cd accumulation and biomass in contrasting cacao genotypes (Fig. 1)
+- DEG counts, intersections, and regulation patterns by tissue, time, and genotype (Fig. 2)
+- GO-term clustering and labels via semantic similarity and keyword enrichment (Fig. 3)
+- Hormone-related pathways (indoles, ABA/apocarotenoids, ethylene) and signaling components (Fig. 4)
+- Root-enriched functions: catabolism/detoxification, ion/macronutrient transport, metal transporters (Fig. 5)
+- Leaf metabolic reprogramming: TCA, carbohydrate, fatty acids, terpenoids (Fig. 6)
+- Physiology & hormones: stomatal conductance and ABA (Fig. 7)
+- Working model integrating molecular and physiological responses (Fig. 8)
+
+---
+
+## Repository structure
+
+```
+cacao-cadmium-response/
+├── data/
+│   ├── raw/                    # Raw inputs (RNA-seq counts, LI-COR session files, etc.)
+│   ├── interim/                # Intermediate files (tidy LI-COR exports, DEG tables)
+│   └── processed/              # Final analysis-ready tables (DEG, GO/KEGG, metadata)
+├── metadata/
+│   ├── sample_metadata.csv     # Sample and experimental metadata
+│   ├── contrasts.csv           # Linear model contrasts used for DE analysis
+│   └── licor_sessions/         # Session-level notes and row-removal logs
+├── scripts/
+│   ├── R/
+│   │   ├── 00_setup.R          # Package install/load, global options
+│   │   ├── 01_qc_counts.R      # RNA-seq QC and normalization
+│   │   ├── 02_deg_models.R     # Linear modeling and DEG extraction
+│   │   ├── 03_go_kegg.R        # GO enrichment and KEGG mapping
+│   │   ├── 04_families_maps.R  # Gene-family/orthogroup mapping & heatmaps
+│   │   ├── 05_figures.R        # End-to-end figure generation
+│   │   └── licor_pipeline.R    # LI-COR read/tidy/merge + stats for Gs/A & ABA
+│   └── bash/
+│       └── make_project_tree.sh
+├── results/
+│   ├── figures/                # Final figure panels (PDF/PNG/SVG)
+│   ├── tables/                 # Main & supplementary tables (CSV/TSV/XLSX)
+│   └── reports/                # Rendered notebooks/reports (HTML/PDF)
+├── notebooks/
+│   ├── figure_checks.Rmd       # Lightweight figure sanity checks
+│   └── exploratory.Rmd         # Optional exploratory analyses
+├── LICENSE
+└── README.md
+```
+
+> **Note:** For reproducibility, all supplemental tables are provided as an Excel workbook with one sheet per table. LI-COR session files are deposited unmodified in `data/raw/` with per-session row-removal logs in `metadata/licor_sessions/` and a scripted tidy pipeline in `scripts/R/licor_pipeline.R`.
+
+---
+
+## Data availability
+
+- **RNA‑seq reads:** NCBI BioProject **PRJNA943175**.  
+- **Processed tables:** Provided under `results/tables/` (main and supplementary).  
+- **Raw LI‑COR outputs:** Provided under `data/raw/licor/` with session-level readme and row-removal justifications.  
+- **Cleaned LI‑COR tables:** Under `data/processed/` and fully reproducible via `scripts/R/licor_pipeline.R`.
+
 ---
 
 ## Reproducibility
 
-- **R ≥ 4.2** (recommend using `renv` for a locked environment)
-- Suggested packages: `data.table`, `tidyverse`, `readxl`, `ggplot2`,  
-  `edgeR`, `limma`, `ComplexHeatmap`, `clusterProfiler`/`fgsea`,  
-  `ComplexUpset`/`UpSetR`, `BiocParallel`, `AnnotationDbi`.
-- External tools: PlantTribes2, KofamScan/KOfam, DeepLoc2.
+### Requirements
+- R (≥ 4.2), data.table, edgeR/DESeq2 (per your analysis), topGO/clusterProfiler, KEGGREST, ggplot2, ComplexHeatmap
+- (Optional) Python ≥ 3.10 for small utilities
+- LI‑COR parsing depends on readxl/openxlsx
 
-### Quick start
-
-```bash
-# 1) set up R environment (optional but recommended)
-R -q -e 'install.packages("renv"); renv::init(); renv::snapshot()'
-
-# 2) run LICOR cleaning to produce analysis-ready tables
-Rscript code/01_qc_licor/clean_LICOR.R
-
-# 3) run RNA-seq DE analysis and write tables/plots
-Rscript code/02_deg_edger/run_deg_pipeline.R
-
-# 4) GO & clustering, KEGG mapping, and figure generation
-Rscript code/03_go_enrichment/go_semantic_clustering.R
-Rscript code/04_kegg_pt_mapping/kofam_pt_mapping.R
-
-# 5) Figures
-Rscript code/05_fig2_upset/make_upset.R
-Rscript code/06_fig4_hormones/make_hormone_panels.R
-Rscript code/07_fig5_roots/make_root_panels.R
-Rscript code/08_fig6_leaf_metab/make_leaf_metab.R
-Rscript code/09_fig7_phys_aba/make_gs_aba.R
-Each script writes CSVs to data/.../processed and figures to figures/main or figures/supp.
+Install core R packages:
+```r
+source("scripts/R/00_setup.R")
 ```
 
-Data availability
-RNA-seq reads: GenBank BioProject PRJNA943175.
-LICOR raw outputs: deposit unaltered session Excel files (4 sessions) in a public repository (Zenodo/Figshare/Dryad) and link the DOI here.
-Supplementary tables: provided as a single Excel workbook (Sheets S1–S9) under supplement/tables_xlsx/.
-LICOR transparency policy (Table S9)
-S9.1 Cleaned dataset used in analyses (tidy, one row per measurement).
-S9.2 Removal log listing every excluded row and the reason (misread / error / no data).
-S9.3 Session metadata (date, settings, filenames), and a link to the raw files DOI.
-Citation
-If you use this repository, please cite the manuscript above once DOI is available.
-Contact
-Open an issue in this repository for questions or reproducibility problems.
+### End‑to‑end figures
+```r
+# Run individual steps or render all figures
+source("scripts/R/05_figures.R")
+```
+
+### LI‑COR pipeline (Gs, A, ABA)
+```r
+source("scripts/R/licor_pipeline.R")
+# Produces tidy tables in data/processed/ and summary stats in results/tables/
+```
+
+---
+
+## Citation
+
+If you use this repository, please cite the manuscript (authors in order as listed above) and this repository. A formal citation will be added upon acceptance.
+
+---
+
+## Funding & acknowledgments
+
+This work was supported by AGROSAVIA (Colombia MinCiencias Agreements TV‑18/TV‑19, Project ID 1000429) and USDA‑NIFA Hatch Project #PEN04707 (Accession #1019863). We thank the Huck Institutes’ Metabolomics Core Facility (RRID: SCR_023864), the USDA‑ARS Tropical Agriculture Research Station (Mayagüez, PR) for cacao pods, Dr. Naomi Altman for statistical guidance, and BioRender® for Figure 8 template support.
+
+---
+
+## License
+
+- **Code:** MIT License (see `LICENSE`)  
+- **Data:** CC BY 4.0 (attribution required). Some third‑party data may have separate terms.
+
+---
+
+## Contact
+
+- **Siela N. Maximova** — snm104@psu.edu  
+- **Roxana Yockteng** — ryockteng@agrosavia.co
