@@ -102,6 +102,9 @@ cacao-cadmium-response/
 - (Optional) Python ≥ 3.10 for small utilities
 - LI‑COR parsing depends on readxl/openxlsx
 
+### Figure provenance.
+R scripts generate vector outputs for all panels. Figures 3–6 and 8 are then assembled/annotated in Illustrator/Inkscape (layout, labels, arrows). We do not modify data, axes, or scales after export. For each figure we provide: (i) the R script, (ii) the R-exported PDF/SVG, and (iii) the final assembled PDF/SVG.
+
 Install core R packages:
 ```r
 source("scripts/R/00_setup.R")
