@@ -3,7 +3,7 @@
 **Repository purpose.**  
 Data, code, and supplementary materials supporting the manuscript:
 
-> Menéndez-Burns, F. M., Delgadillo-Duran, P., Rodríguez-Medina, C., Montenegro, A. C., Istvan, A., Guiltinan, M. J., Yockteng, R., Maximova, S. N. (2025). *Molecular and Physiological Mechanisms of the Cadmium Response in Seedlings of Two Theobroma cacao L. Genotypes*. _Plant Physiology_. (DOI TBA)
+> Delgadillo-Duran, P., Menéndez-Burns, F. M., Rodríguez-Medina, C., Montenegro, A. C., Istvan, A., Guiltinan, M. J., Yockteng, R., Maximova, S. N. (2025) *Molecular and Physiological Mechanisms of the Cadmium Response in Seedlings of Two Theobroma cacao L. Genotypes*. _Plant Physiology_. (DOI TBA)
 
 This repository reproduces the transcriptomic (RNA-seq) and physiological (gas exchange, ABA) analyses and figures.
 
@@ -80,6 +80,8 @@ Rscript code/07_fig5_roots/make_root_panels.R
 Rscript code/08_fig6_leaf_metab/make_leaf_metab.R
 Rscript code/09_fig7_phys_aba/make_gs_aba.R
 Each script writes CSVs to data/.../processed and figures to figures/main or figures/supp.
+```
+
 Data availability
 RNA-seq reads: GenBank BioProject PRJNA943175.
 LICOR raw outputs: deposit unaltered session Excel files (4 sessions) in a public repository (Zenodo/Figshare/Dryad) and link the DOI here.
