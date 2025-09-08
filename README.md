@@ -13,7 +13,7 @@ This repository reproduces the transcriptomic (RNA-seq) and physiological (gas e
 
 data/
 rna_seq/
-raw/ # links/README pointing to PRJNA943175
+raw/ links/README pointing to PRJNA943175
 processed/ # count matrices, sample metadata
 gas_exchange/
 licor_raw/ # original LI-6400XT Excel exports (4 sessions)
