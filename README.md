@@ -5,7 +5,7 @@
 
 ---
 
-## Authors (manuscript order)
+## Authors
 
 - **P. Delgadillo‑Duran**\*¹  
 - **F. M. Menéndez‑Burns**\*² ³  
@@ -13,7 +13,7 @@
 - **A. C. Montenegro**¹  
 - **A. Istvan**⁵  
 - **M. J. Guiltinan**² ³  
-- **R. Yockteng**¹ ⁷ ✉️  
+- **R. Yockteng**¹ ⁶ ✉️  
 - **S. N. Maximova**² ³ ✉️  
 
 \*Equal contribution
@@ -23,9 +23,8 @@
 2. Department of Plant Science, The Pennsylvania State University, University Park, PA, USA  
 3. Huck Institutes of the Life Sciences, The Pennsylvania State University, University Park, PA, USA  
 4. Corporación Colombiana de Investigación Agropecuaria – **AGROSAVIA**, Centro de Investigación Palmira, Valle del Cauca, Colombia  
-5. Department of Biochemistry and Molecular Biology, The Pennsylvania State University, University Park, PA, USA  
-6. Department of Statistics, The Pennsylvania State University, University Park, PA, USA  
-7. Institut de Systématique, Evolution, Biodiversité (UMR CNRS 7205), Muséum National d’Histoire Naturelle, France
+5. Department of Biochemistry and Molecular Biology, The Pennsylvania State University, University Park, PA, USA   
+6. Institut de Systématique, Evolution, Biodiversité (UMR CNRS 7205), Muséum National d’Histoire Naturelle, France
 
 **Corresponding authors:**  
 Siela N. Maximova — <snm104@psu.edu>  
