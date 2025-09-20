@@ -1,0 +1,25 @@
+ls
+.DS_Store
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Rprofile
+
+# Python/Jupyter
+__pycache__/
+.ipynb_checkpoints/
+
+# Data (keep placeholders, not payload)
+data/raw/**
+data/interim/**
+data/processed/**
+!data/**/.gitkeep
+
+# Results you don't want versioned (adjust if you do)
+results/reports/**
+!results/reports/.gitkeep
+
+# Editor junk
+*.swp
