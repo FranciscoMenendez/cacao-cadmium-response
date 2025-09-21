@@ -13,12 +13,13 @@ suppressPackageStartupMessages({
 # -----------------------------
 # Expect a tab-delimited file where the first column is gene IDs and the remaining are sample libraries
 # Prefer fread() for speed; it will keep Geneid as character and counts as integer/numeric
-counts_dt <- fread("tablas_le_new/counts_genes_last_exon_new.txt")
+counts_dt <- fread("data/raw/counts_genes_last_exon_new.txt")
 stopifnot(names(counts_dt)[1] %in% c("Geneid","geneid","GeneID"))
 setnames(counts_dt, names(counts_dt)[1], "geneid")
 
 # Keep only the true library columns (numeric). This is safer than fixed column indices.
-lib_cols <- names(counts_dt)[vapply(counts_dt, is.numeric, logical(1))]
+lib_cols <- grep("\\.bam$", names(counts_dt), value = TRUE, ignore.case = TRUE)
+
 if (length(lib_cols) == 0) stop("No numeric library columns found. Check input file.")
 
 # Optional: drop any T8 libraries if present (we'll also filter later by time)
@@ -33,23 +34,29 @@ ctmel <- melt(counts_dt[, c("geneid", lib_cols), with = FALSE],
 # Parse genotype, time, block, tissue from the library string
 ctmel[, genotype := fifelse(grepl("TSH", library, ignore.case = TRUE), "TSH660",
                             fifelse(grepl("PA", library,  ignore.case = TRUE), "PA121", NA_character_))]
-
+# Time: 
 ctmel[, time := {
   m <- str_match(library, "T(0|24|48|8)(?:[^0-9]|$)")
   # m[,2] grabs the captured group; keep as character ('0','24','48','8')
   m[, 2]
 }]
 
-ctmel[, block := toupper(str_match(library, "(B1|B2|B3)"))]
+# Block: vector output; case-insensitive; returns e.g. "B1","B2","B3"
+ctmel[, block := toupper(str_extract(as.character(library), "(?i)B[123]"))]
+ctmel[, block := factor(block, levels = c("B1","B2","B3"))]
+stopifnot(nrow(ctmel) == length(ctmel$block))
+table(ctmel$block, useNA = "ifany") # all blocks have the same number of genes (qc step)
 
+# Tissue
 ctmel[, tissue := fifelse(grepl("raiz", library, ignore.case = TRUE), "root",
-                          fifelse(grepl("hoja", library, ignore.case = TRUE), "leaf", NA_character_))]
+                          fifelse(grepl("hoja", library, ignore.case = TRUE), "leaf", NA_character_))] # since we're splitting later, no need to convert to factor
 
 # Filter to the timepoints of interest
 ctmel <- ctmel[time %in% c("0","24","48")]
+table(ctmel$block, useNA = "ifany") # 24h libraries are fewer
 
 # -----------------------------
-# 3) Build expsum (one row per library)
+# 3) Build experimental summary table (expsum) (one row per library)
 # -----------------------------
 expsum <- unique(ctmel[, .(library, genotype, time, block, tissue)])
 setorder(expsum, tissue, genotype, block, time, library)
@@ -89,8 +96,8 @@ if (anyNA(expsum)) {
 # -----------------------------
 # 5) Split expsum by tissue with correct time ranges
 # -----------------------------
-expsum_leaf  <- expsum[tissue == "leaf"]               # 0,24,48 by design
-expsum_root1 <- expsum[tissue == "root" & time %in% c("0","48")]  # roots only at 0 & 48
+expsum_leaf  <- expsum[tissue == "leaf"] # 0,24,48 by design
+expsum_root <- expsum[tissue == "root" ] # roots only at 0 & 48
 
 # -----------------------------
 # 6) Build counts matrices aligned to expsum order
@@ -108,18 +115,31 @@ if (nrow(expsum_leaf)) {
   count_leaf <- counts_mat[, expsum_leaf$library, drop = FALSE]
 }
 
+
 # Root (root-only libraries at 0/48)
-if (nrow(expsum_root1)) {
-  missing_root <- setdiff(expsum_root1$library, colnames(counts_mat))
+if (nrow(expsum_root)) {
+  missing_root <- setdiff(expsum_root$library, colnames(counts_mat))
   if (length(missing_root)) stop("Root libraries not found in counts: ", paste(missing_root, collapse=","))
-  count_root1 <- counts_mat[, expsum_root1$library, drop = FALSE]
+  count_root <- counts_mat[, expsum_root$library, drop = FALSE]
 }
+
+# Count matrix check
+stopifnot(!anyDuplicated(expsum_leaf$library))    # no dup library IDs
+stopifnot(!anyDuplicated(expsum_root$library))    # no dup library IDs
+stopifnot(all(rownames(counts_mat) != ""))        # gene IDs set
 
 # -----------------------------
 # 7) Additional QC: library size and duplicates
 # -----------------------------
-libsize_leaf <- if (exists("count_leaf")) data.table(library = colnames(count_leaf), libsize = colSums(count_leaf)) else NULL
-libsize_root <- if (exists("count_root1")) data.table(library = colnames(count_root1), libsize = colSums(count_root1)) else NULL
+libsize_leaf <- if (exists("count_leaf")) data.table(library = colnames(count_leaf), libsize = colSums(count_leaf), detected_genes= colSums(count_leaf > 0)) else NULL
+libsize_root <- if (exists("count_root")) data.table(library = colnames(count_root), libsize = colSums(count_root), detected_genes= colSums(count_root > 0)) else NULL
+
+# Attach metadata for readability (tissue, genotype, time, block)
+exmeta <- as.data.table(expsum)[, .(library, tissue, genotype, time, block)]
+libsize_leaf <- exmeta[libsize_leaf, on = "library"]  # left join by library
+libsize_root <- exmeta[libsize_root, on = "library"]  # left join by library
+rm(exmeta)
+
 
 # Check uniqueness of plant per (block×genotype) cell
 plant_check <- expsum[, .N, by = .(plant, tissue)][order(plant, tissue)]
@@ -128,18 +148,16 @@ print(plant_check)
 # -----------------------------
 # 8) Save artifacts
 # -----------------------------
-# Save as RDA for downstream scripts
-save(expsum, expsum_leaf, expsum_root1, file = "expsum_built.rda")
-if (exists("count_leaf"))  save(count_leaf,  file = "count_leaf_built.rda")
-if (exists("count_root1")) save(count_root1, file = "count_root1_built.rda")
+# RDA (binary artifacts; ignored by git per your .gitignore)
+save(expsum, expsum_leaf, expsum_root1, file = "data/interim/expsum_built.rda")
+if (exists("count_leaf"))  save(count_leaf,  file = "data/interim/count_leaf_built.rda")
+if (exists("count_root")) save(count_root1, file = "data/interim/count_root_built.rda")
+save(libsize_leaf, libsize_root, file = 'data/interim/libsize_without_sizefactor.rda') # (add size factor column later, save as result)
 
-# Also export CSV summaries for human inspection
-fwrite(expsum,        file = "expsum_all.csv")
-fwrite(expsum_leaf,   file = "expsum_leaf.csv")
-fwrite(expsum_root1,  file = "expsum_root.csv")
-if (!is.null(libsize_leaf)) fwrite(libsize_leaf, file = "libsizes_leaf.csv")
-if (!is.null(libsize_root)) fwrite(libsize_root, file = "libsizes_root.csv")
-fwrite(qc_cell_time,  file = "qc_cell_time.csv")
-fwrite(qc_cell_tot,   file = "qc_cell_total.csv")
+# sample-sheet CSVs (version these)
+data.table::fwrite(expsum,       "metadata/expsum_all.csv")
+data.table::fwrite(expsum_leaf,  "metadata/expsum_leaf.csv")
+data.table::fwrite(expsum_root1, "metadata/expsum_root.csv")
+
 
 message("expsum_* and count_* built successfully. Columns in counts are aligned to expsum row order.")
