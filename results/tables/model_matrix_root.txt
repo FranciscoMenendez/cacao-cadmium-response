@@ -1,0 +1,13 @@
+(Intercept)	genotypeTSH660	time48	blockB2	blockB3	genotypeTSH660:time48	genotypeTSH660:blockB2	genotypeTSH660:blockB3
+PA_121_T0_B1_raiz_paired.sorted.bam	1	0	0	0	0	0	0	0
+PA_121_T48_B1_raiz_paired.sorted.bam	1	0	1	0	0	0	0	0
+PA_121_T0_B2_raiz_paired.sorted.bam	1	0	0	1	0	0	0	0
+PA_121_T48_B2_raiz_paired.sorted.bam	1	0	1	1	0	0	0	0
+PA_121_T0_B3_raiz_paired.sorted.bam	1	0	0	0	1	0	0	0
+PA_121_T48_B3_raiz_paired.sorted.bam	1	0	1	0	1	0	0	0
+TSH_660_T0_B1_raiz_paired.sorted.bam	1	1	0	0	0	0	0	0
+TSH_660_T48_B1_raiz_paired.sorted.bam	1	1	1	0	0	1	0	0
+TSH_660_T0_B2_raiz_paired.sorted.bam	1	1	0	1	0	0	1	0
+TSH_660_T48_B2_raiz_paired.sorted.bam	1	1	1	1	0	1	1	0
+TSH_660_T0_B3_raiz_paired.sorted.bam	1	1	0	0	1	0	0	1
+TSH_660_T48_B3_raiz_paired.sorted.bam	1	1	1	0	1	1	0	1
