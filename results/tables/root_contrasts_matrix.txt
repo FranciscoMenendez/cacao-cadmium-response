@@ -1,0 +1,6 @@
+(Intercept)	genotypeTSH660	time48	blockB2	blockB3	genotypeTSH660:time48	genotypeTSH660:blockB2	genotypeTSH660:blockB3
+root_pa121_tsh660_0h_0h	0	-1	0	0	0	0	-0.333333333333333	-0.333333333333333
+root_pa121_tsh660_48h_48h	0	-1	0	0	0	-1	-0.333333333333333	-0.333333333333333
+root_pa121_48h_0h	0	0	1	0	0	0	0	0
+root_tsh660_48h_0h	0	0	1	0	0	1	0	0
+root_48h_0h	0	0	1	0	0	0.5	0	0
